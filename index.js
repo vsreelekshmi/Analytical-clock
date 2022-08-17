@@ -1,45 +1,86 @@
 // Import stylesheets
 import './style.css';
 
-//Create a canvas object
-var canvas = document.getElementById('canvas');
-//Create a 2d drawing object for the canvas object
-var ctx = canvas.getContext('2d');
+setupAnalogClock(document.getElementById('canvas'), 100);
 
-const centerX = canvas.width / 2;
-const centerY = canvas.height / 2;
-var radius = 60;
+function setupAnalogClock(canvas, clockWidth) {
+  //		var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext('2d');
+  var centerX = canvas.width / 2;
+  var centerY = canvas.height / 2;
 
-drawClock();
+  function tick() {
+    var date = new Date();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawStatic();
 
-//draw the clock
-function drawClock() {
-  drawFace(ctx, radius);
-}
+    var hours = date.getHours();
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 2;
+    drawHand(clockWidth / 3, hours * 30);
 
-function drawFace() {
-  var grad;
+    var minutes = date.getMinutes();
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 2;
+    drawHand(clockWidth / 2, minutes * 6);
 
-  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-  ctx.fillStyle = 'white';
-  ctx.fill();
+    var seconds = date.getSeconds();
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 1;
+    drawHand(clockWidth / 2, seconds * 6);
 
-  //Create a radial gradient
-  grad = ctx.createRadialGradient(0, 0, radius*.5, 0, 0, radius*5.05);
-  //3 color stops, corresponding with the inner, middle, and outer edge of the arc
-  grad.addColorStop(0, 'white');
-  grad.addColorStop(0, 'black');
-  grad.addColorStop(0, '#38074D');
-  //Define the gradient as the stroke style of the drawing object
-  ctx.strokeStyle = grad;
-  //Define the line width of the drawing object
-  ctx.lineWidth = radius*0.05;
-  //Draw the circle
-  ctx.stroke();
+    function drawStatic() {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, clockWidth / 2, 0, 2 * Math.PI, false);
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.closePath();
 
-  //Draw the clock center:
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius*0.05, 0, 2*Math.PI);
-  ctx.fillStyle = '#38074D';
-  ctx.fill();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 2, 0, 2 * Math.PI, false);
+      ctx.fillStyle = 'black';
+      ctx.fill();
+      ctx.closePath();
+
+      drawNumbers();
+
+      function drawNumbers() {
+        var i = 12;
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+        while (i > 0) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.translate(centerX, centerY);
+          var angle = (i * 30 * Math.PI) / 180;
+          ctx.rotate(angle);
+          ctx.translate(0, -clockWidth / 2);
+
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, 10);
+          ctx.stroke();
+          ctx.closePath();
+          ctx.restore();
+          i--;
+        }
+      }
+    }
+
+    function drawHand(length, angle) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.translate(centerX, centerY);
+      ctx.rotate((-180 * Math.PI) / 180); // Correct for top left origin
+      ctx.rotate((angle * Math.PI) / 180);
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, length);
+      ctx.stroke();
+      ctx.closePath();
+      ctx.restore();
+    }
+  }
+
+  tick();
+  window.setInterval(tick, 1000);
 }

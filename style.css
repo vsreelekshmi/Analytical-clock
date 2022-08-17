@@ -1,5 +1,11 @@
-#canvas {
-  width: 400px ;
-  height: 200px;
-  background-color: rgb(129, 83, 236);
+body {
+  align-items: center;
+  margin-left: 35%;
 }
+
+#canvas {
+  width: 400px;
+  height: 200px;
+  background-color: white;
+}
+
